@@ -12,7 +12,7 @@ jobs:
       env:
       TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
       RDP_USERNAME: "nwdAdmin"
-      RDP_PASSWORD: "MA123456"
+      RDP_PASSWORD: "Rdp@2026!CloudX9"
 
     steps:
 
