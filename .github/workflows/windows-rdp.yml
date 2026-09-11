@@ -61,10 +61,37 @@ jobs:
             -Group "Administrators" `
             -Member $env:RDP_USERNAME `
             -ErrorAction SilentlyContinue
+                               - name: 2. Create Admin Account
+                  shell: powershell
+                  run: |
+                   $password = ConvertTo-SecureString `
+                   $env:RDP_PASSWORD `
+                   -AsPlainText `
+                     -Force
 
-      - name: 3. Download and Install Tailscale
-        shell: powershell
-        run: |
+                       $existingUser = Get-LocalUser `
+                       -Name $env:RDP_USERNAME `
+                        -ErrorAction SilentlyContinue
+
+                          if ($existingUser) {
+                          Set-LocalUser `
+               -Name $env:RDP_USERNAME `
+          -Password $password
+                              }
+             else {
+                    New-LocalUser `
+          -Name $env:RDP_USERNAME `
+          -Password $password `
+          -FullName "RDP Administrator"
+                                   }
+
+                Add-LocalGroupMember `
+                -Group "Administrators" `
+                     -Member $env:RDP_USERNAME `
+                      -ErrorAction SilentlyContinue
+             - name: 3. Download and Install Tailscale
+               shell: powershell
+                  run: |
           Invoke-WebRequest `
             "https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi" `
             -OutFile "C:\tailscale.msi"
