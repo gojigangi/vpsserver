@@ -11,7 +11,7 @@ jobs:
     env:
       TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
       RDP_USERNAME: "nwdAdmin"
-      RDP_PASSWORD: "nwdAdmsdgfggsdin"
+      RDP_PASSWORD: "RdpCloud#2026X9!"
 
     steps:
       - name: 1. Enable Remote Desktop & Firewall
