@@ -9,13 +9,11 @@ jobs:
     timeout-minutes: 360
 
     env:
-      env:
       TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
-      RDP_USERNAME: "nwdAdmin"
-      RDP_PASSWORD: "Rdp@2026!CloudX9"
+      RDP_USERNAME: ${{ secrets.RDP_USERNAME }}
+      RDP_PASSWORD: ${{ secrets.RDP_PASSWORD }}
 
     steps:
-
       - name: 1. Enable Remote Desktop & Firewall
         shell: powershell
         run: |
@@ -26,15 +24,17 @@ jobs:
 
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-          # Keep Network Level Authentication enabled
-          Set-ItemProperty `
-            -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' `
-            -Name 'UserAuthentication' `
-            -Value 1
-
       - name: 2. Create Admin Account
         shell: powershell
         run: |
+          if ([string]::IsNullOrWhiteSpace($env:RDP_USERNAME)) {
+            throw "RDP_USERNAME secret is empty."
+          }
+
+          if ([string]::IsNullOrWhiteSpace($env:RDP_PASSWORD)) {
+            throw "RDP_PASSWORD secret is empty."
+          }
+
           $password = ConvertTo-SecureString `
             $env:RDP_PASSWORD `
             -AsPlainText `
@@ -44,54 +44,26 @@ jobs:
             -Name $env:RDP_USERNAME `
             -ErrorAction SilentlyContinue
 
-          if (-not $existingUser) {
-              New-LocalUser `
-                -Name $env:RDP_USERNAME `
-                -Password $password `
-                -FullName "RDP Administrator" `
-                -Description "Temporary RDP Administrator"
+          if ($existingUser) {
+            Set-LocalUser `
+              -Name $env:RDP_USERNAME `
+              -Password $password
           }
           else {
-              Set-LocalUser `
-                -Name $env:RDP_USERNAME `
-                -Password $password
+            New-LocalUser `
+              -Name $env:RDP_USERNAME `
+              -Password $password `
+              -FullName "RDP Administrator"
           }
 
           Add-LocalGroupMember `
             -Group "Administrators" `
             -Member $env:RDP_USERNAME `
             -ErrorAction SilentlyContinue
-                               - name: 2. Create Admin Account
-                  shell: powershell
-                  run: |
-                   $password = ConvertTo-SecureString `
-                   $env:RDP_PASSWORD `
-                   -AsPlainText `
-                     -Force
 
-                       $existingUser = Get-LocalUser `
-                       -Name $env:RDP_USERNAME `
-                        -ErrorAction SilentlyContinue
-
-                          if ($existingUser) {
-                          Set-LocalUser `
-               -Name $env:RDP_USERNAME `
-          -Password $password
-                              }
-             else {
-                    New-LocalUser `
-          -Name $env:RDP_USERNAME `
-          -Password $password `
-          -FullName "RDP Administrator"
-                                   }
-
-                Add-LocalGroupMember `
-                -Group "Administrators" `
-                     -Member $env:RDP_USERNAME `
-                      -ErrorAction SilentlyContinue
-             - name: 3. Download and Install Tailscale
-               shell: powershell
-                  run: |
+      - name: 3. Download and Install Tailscale
+        shell: powershell
+        run: |
           Invoke-WebRequest `
             "https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi" `
             -OutFile "C:\tailscale.msi"
@@ -104,6 +76,10 @@ jobs:
       - name: 4. Connect to Tailscale
         shell: powershell
         run: |
+          if ([string]::IsNullOrWhiteSpace($env:TAILSCALE_AUTHKEY)) {
+            throw "TAILSCALE_AUTHKEY secret is empty."
+          }
+
           Start-Sleep -Seconds 5
 
           & "C:\Program Files\Tailscale\tailscale.exe" up `
@@ -125,16 +101,14 @@ jobs:
           Write-Host "==========================================" -ForegroundColor Green
           Write-Host "Tailscale IP : $ts_ip" -ForegroundColor Yellow
           Write-Host "Username     : $env:RDP_USERNAME" -ForegroundColor Yellow
-          Write-Host "Password     : [Stored in GitHub Secret]" -ForegroundColor Yellow
-          Write-Host ""
-          Write-Host "Open Remote Desktop (mstsc) and connect to:"
-          Write-Host "$ts_ip" -ForegroundColor Magenta
+          Write-Host "Password     : [GitHub Secret]" -ForegroundColor Yellow
+          Write-Host "Connect using Windows Remote Desktop (mstsc)" -ForegroundColor Magenta
           Write-Host "==========================================" -ForegroundColor Green
 
       - name: 6. Keep Server Alive
         shell: powershell
         run: |
           for ($i = 1; $i -le 360; $i++) {
-              Start-Sleep -Seconds 60
-              Write-Host "[$i/360] Server running..."
+            Start-Sleep -Seconds 60
+            Write-Host "[$i/360] Server running..."
           }
