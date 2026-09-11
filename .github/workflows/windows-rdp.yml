@@ -10,9 +10,9 @@ jobs:
 
     env:
       env:
-  TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
-  RDP_USERNAME: "nwdAdmin"
-  RDP_PASSWORD: "MA123456"
+      TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
+      RDP_USERNAME: "nwdAdmin"
+      RDP_PASSWORD: "MA123456"
 
     steps:
 
