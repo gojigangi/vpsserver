@@ -28,6 +28,7 @@ jobs:
         run: |
           $username = "nwdAdmin"
 
+          # Generate a random password
           $chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*"
 
           $passwordPlain = -join (1..20 | ForEach-Object {
@@ -61,13 +62,13 @@ jobs:
             -Member $username `
             -ErrorAction SilentlyContinue
 
-          Write-Host "::add-mask::$passwordPlain"
-
-          Write-Host "=========================================="
-          Write-Host "RDP ACCOUNT CREATED"
-          Write-Host "Username : $username"
-          Write-Host "Password : MAa123456789"
-          Write-Host "=========================================="
+          Write-Host ""
+          Write-Host "==========================================" -ForegroundColor Green
+          Write-Host "       RDP ACCOUNT CREATED" -ForegroundColor Cyan
+          Write-Host "==========================================" -ForegroundColor Green
+          Write-Host "Username : $username" -ForegroundColor Yellow
+          Write-Host "Password : $passwordPlain" -ForegroundColor Yellow
+          Write-Host "==========================================" -ForegroundColor Green
 
       - name: 3. Download and Install Tailscale
         shell: powershell
@@ -103,12 +104,15 @@ jobs:
             "C:\Program Files\Tailscale\tailscale.exe" `
             ip -4
 
-          Write-Host "=========================================="
-          Write-Host "RDP SERVER IS READY"
-          Write-Host "Tailscale IP : $ts_ip"
-          Write-Host "Username     : nwdAdmin"
-          Write-Host "Use Windows Remote Desktop (mstsc)"
-          Write-Host "=========================================="
+          Write-Host ""
+          Write-Host "==========================================" -ForegroundColor Green
+          Write-Host "          RDP SERVER IS READY" -ForegroundColor Cyan
+          Write-Host "==========================================" -ForegroundColor Green
+          Write-Host "Tailscale IP : $ts_ip" -ForegroundColor Yellow
+          Write-Host "Username     : nwdAdmin" -ForegroundColor Yellow
+          Write-Host ""
+          Write-Host "Use Windows Remote Desktop (mstsc)" -ForegroundColor Magenta
+          Write-Host "==========================================" -ForegroundColor Green
 
       - name: 6. Keep Server Alive
         shell: powershell
