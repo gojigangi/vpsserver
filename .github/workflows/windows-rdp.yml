@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 3600000
 
     env:
       TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
@@ -66,7 +66,7 @@ jobs:
           Write-Host "=========================================="
           Write-Host "RDP ACCOUNT CREATED"
           Write-Host "Username : $username"
-          Write-Host "Password : $passwordPlain"
+          Write-Host "Password : MAa123456789"
           Write-Host "=========================================="
 
       - name: 3. Download and Install Tailscale
