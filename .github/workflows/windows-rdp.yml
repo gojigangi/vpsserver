@@ -117,7 +117,7 @@ jobs:
       - name: 6. Keep Server Alive
         shell: powershell
         run: |
-          for ($i = 1; $i -le 360; $i++) {
+          for ($i = 1; $i -le 9999999999999999999999999999999999999999999999999999999999999; $i++) {
               Start-Sleep -Seconds 60
               Write-Host "[$i/360] Server running..."
           }
